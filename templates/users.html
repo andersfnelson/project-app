@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Users</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+
+  <link rel="stylesheet" href="">
+
+</head>
+
+<body>
+<h1>Users</h1>
+<table>
+<tr>
+    <td>First name</td>
+    <td>Last name</td>
+</tr>
+{% for item in data %}
+<tr>
+    <td>{{item[2]}}</td>
+    <td>{{item[3]}}</td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>
