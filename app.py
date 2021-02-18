@@ -17,8 +17,6 @@ engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 @app.route('/')
 def hello():
-    result = engine.execute('SELECT * FROM advising.USER_TBL;').fetchall()
-    print(result)
     return render_template('index.html')
 
 @app.route('/users')
