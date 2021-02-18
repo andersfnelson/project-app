@@ -1,0 +1,22 @@
+{%extends "layout.html"%}
+{%block content%}
+
+
+<h1>Edit user</h1>
+{%for item in data%}
+<form method='POST' action="{{ url_for('commitupdate', id = item[0])}}">
+    <label for='fname'>First name</label>
+    <input type='text' name='fname' value="{{item[2]}}">
+    <br>
+    <label for='lname'>Last name</label>
+    <input type='text' name='lname' value="{{item[3]}}">
+    <br>
+    <label for='email'>Email</label>
+    <input type='text' name='email' value="{{item[4]}}">
+    <br>
+    <input type="submit" value="Update user info">
+
+</form>
+{%endfor%}
+<a href=/users><button>Go back to users page</button></a>
+{%endblock%}

@@ -1,30 +1,35 @@
-<!doctype html>
+{%extends "layout.html"%}
 
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+{%block head%}
 
   <title>Users</title>
-  <meta name="description" content="The HTML5 Herald">
-  <meta name="author" content="SitePoint">
-
-  <link rel="stylesheet" href="">
+{%endblock%}
 
 </head>
 
 <body>
+    {%block content%}
 <h1>Users</h1>
+<br>
+<a href=/adduser><button>Add new user</button></a>
 <table>
 <tr>
     <td>First name</td>
     <td>Last name</td>
+    <td>Email</td>
 </tr>
 {% for item in data %}
 <tr>
     <td>{{item[2]}}</td>
     <td>{{item[3]}}</td>
+    <td>{{item[4]}}</td>
+    <td><form action='/edituser/{{item[0]}}'><input type='submit' value="Edit"></form></td>
+    <td><form action='/deluser/{{item[0]}}'><input type='submit' value="Delete"></form></td>
 </tr>
 {% endfor %}
 </table>
+{%endblock%}
 </body>
 </html>

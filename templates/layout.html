@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../static/style.css">
+    {% block head %}
+    {%endblock%}
+</head>
+
+<body>
+    <div id='content'>{%block content%}
+        <header>
+            {%block header%}{%endblock%}
+        </header>
+        {%endblock%}
+    </div>
+</body>
+
+</html>
