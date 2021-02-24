@@ -20,12 +20,14 @@
     <td>First name</td>
     <td>Last name</td>
     <td>Email</td>
+    <td>Role ID</td>
 </tr>
 {% for item in data %}
 <tr>
-    <td>{{item[2]}}</td>
     <td>{{item[3]}}</td>
     <td>{{item[4]}}</td>
+    <td>{{item[5]}}</td>
+    <td>{{item[2]}}</td>
     <td><form action='/edituser/{{item[0]}}'><input type='submit' value="Edit"></form></td>
     <td><form action='/deluser/{{item[0]}}'><input type='submit' value="Delete"></form></td>
 </tr>

@@ -11,6 +11,14 @@
     <label for='email'>Email</label>
     <input type='text' name='email'>
     <br>
+    <br>
+    <br>
+    {% for item in data %}
+    <label for='roletype'>{{item[1]}}</label>
+    <input type="radio", name='roletype', value='{{item[1]}}'>
+    <br>
+    {% endfor %}
+    <br>
     <input type="submit" value="Add user">
 
 </form>

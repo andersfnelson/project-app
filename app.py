@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from sqlalchemy import create_engine
 import urllib
 import config
-
+import re
 app = Flask(__name__)
 app.secret_key = 'secret key'
 
@@ -31,16 +31,25 @@ def users():
 
 @app.route('/adduser', methods = ['POST', 'GET'])
 def render():
+    rolequery = 'SELECT * FROM advising.ROLE_TBL'
+    roleresult = engine.execute(rolequery).fetchall()
     if request.method == 'POST':
         fname = request.form['fname']
         lname = request.form['lname']
         email = request.form['email']
-        query = 'INSERT INTO advising.USER_TBL (first_name, last_name, email) VALUES (\'%s\', \'%s\', \'%s\');' % (fname, lname, email)
+        role_name = request.form['roletype']
+        # print('roletype: '+role_name)
+        role_id_result= engine.execute('SELECT role_id FROM advising.ROLE_TBL WHERE role_name = \'%s\'' % (role_name))
+        id = str([row[0] for row in role_id_result])
+        id = re.sub(r'^\W*', '', id)
+        id = re.sub(r'\W*$', '', id)
+        print(id)
+        query = 'INSERT INTO advising.USER_TBL (first_name, last_name, email, role_id) VALUES (\'%s\', \'%s\', \'%s\', \'%s\');' % (fname, lname, email, id)
         engine.execute(query)
         # print(fname)
         print(query)
         return redirect(url_for('users'))
-    return render_template('adduser.html')
+    return render_template('adduser.html', data=roleresult)
 
 @app.route('/addrole', methods = ['POST', 'GET'])
 def addrole():
@@ -103,7 +112,6 @@ def commitroleupdate(id):
         # print(query)
         engine.execute(query)
         return redirect(url_for('roles'))
-
 
 if __name__ == "__main__":
     app.run(debug=True)
