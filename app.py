@@ -19,6 +19,11 @@ engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 def hello():
     return render_template('index.html')
 
+@app.route('/roles')
+def roles():
+    result = engine.execute('SELECT * FROM advising.ROLE_TBL;').fetchall()
+    return render_template('roles.html', data=result)
+
 @app.route('/users')
 def users():
     result = engine.execute('SELECT * FROM advising.USER_TBL;').fetchall()
@@ -37,6 +42,17 @@ def render():
         return redirect(url_for('users'))
     return render_template('adduser.html')
 
+@app.route('/addrole', methods = ['POST', 'GET'])
+def addrole():
+    if request.method == 'POST':
+        rname = request.form['rname']
+        query = 'INSERT INTO advising.ROLE_TBL (role_name) VALUES (\'%s\');' % (rname)
+        engine.execute(query)
+        # print(fname)
+        print(query)
+        return redirect(url_for('roles'))
+    return render_template('addrole.html')
+
 @app.route('/deluser/<string:id>', methods = ['POST', 'GET'])
 def deluser(id):
     # print('deluser')
@@ -50,7 +66,22 @@ def edituser(id):
     sql = 'SELECT * FROM advising.USER_TBL WHERE user_id = \'%s\';' %(id)
     result = engine.execute(sql).fetchall()
     print(result)
-    return render_template('edituser.html', data=result) 
+    return render_template('edituser.html', data=result)
+
+@app.route('/delrole/<string:id>', methods = ['POST', 'GET'])
+def delrole(id):
+    # print('deluser')
+    sql = 'DELETE FROM advising.ROLE_TBL WHERE role_id = \'%s\';' %(id)
+    engine.execute(sql)
+    # print (sql)
+    return redirect(url_for('roles'))
+
+@app.route('/editrole/<string:id>', methods = ['POST', 'GET'])
+def editrole(id):
+    sql = 'SELECT * FROM advising.ROLE_TBL WHERE role_id = \'%s\';' %(id)
+    result = engine.execute(sql).fetchall()
+    print(result)
+    return render_template('editrole.html', data=result)
 
 @app.route('/commitupdate/<string:id>', methods=['GET', 'POST'])
 def commitupdate(id):
@@ -62,6 +93,16 @@ def commitupdate(id):
         # print(query)
         engine.execute(query)
         return redirect(url_for('users'))
+
+
+@app.route('/commitroleupdate/<string:id>', methods=['GET', 'POST'])
+def commitroleupdate(id):
+    if request.method == 'POST':
+        rname = request.form['rname']
+        query = 'UPDATE advising.ROLE_TBL SET role_name = \'%s\' WHERE role_id = \'%s\';' % (rname, id)
+        # print(query)
+        engine.execute(query)
+        return redirect(url_for('roles'))
 
 
 if __name__ == "__main__":

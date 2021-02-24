@@ -1,0 +1,16 @@
+{%extends "layout.html"%}
+{%block content%}
+
+
+<h1>Edit user</h1>
+{%for item in data%}
+<form method='POST' action="{{ url_for('commitroleupdate', id = item[0])}}">
+    <label for='rname'>Role name</label>
+    <input type='text' name='rname' value="{{item[1]}}">
+ 
+    <input type="submit" value="Update role info">
+
+</form>
+{%endfor%}
+<a href=/roles><button>Go back to roles page</button></a>
+{%endblock%}
