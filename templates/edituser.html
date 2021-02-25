@@ -6,14 +6,19 @@
 {%for item in data%}
 <form method='POST' action="{{ url_for('commitupdate', id = item[0])}}">
     <label for='fname'>First name</label>
-    <input type='text' name='fname' value="{{item[2]}}">
+    <input type='text' name='fname' value="{{item[1]}}">
     <br>
     <label for='lname'>Last name</label>
-    <input type='text' name='lname' value="{{item[3]}}">
+    <input type='text' name='lname' value="{{item[2]}}">
     <br>
     <label for='email'>Email</label>
-    <input type='text' name='email' value="{{item[4]}}">
+    <input type='text' name='email' value="{{item[3]}}">
     <br>
+    {% for item2 in data2 %}
+    <label for='roletype'>{{item2[1]}}</label>
+    <input type="radio", name='roletype', value='{{item2[1]}}', checked = '{{item[4]}}'>
+    <br>
+    {% endfor %}
     <input type="submit" value="Update user info">
 
 </form>

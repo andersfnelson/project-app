@@ -1,0 +1,18 @@
+{%extends "layout.html"%}
+{%block content%}
+<h1>Courses</h1>
+<a href="{{url_for('hello')}}">Home</a>
+<a href='/addcourse'>Add a course</a>
+<table>
+    <tr>
+        <td>Course Name</td>
+    </tr>
+    {% for item in data %}
+    <tr>
+        <td>{{item[2]}}</td>
+        <td><form action='/editrole/{{item[0]}}'><input type='submit' value="Edit"></form></td>
+        <td><form action='/delrole/{{item[0]}}'><input type='submit' value="Delete"></form></td>
+    </tr>
+    {% endfor %}
+    </table>
+{%endblock%}
