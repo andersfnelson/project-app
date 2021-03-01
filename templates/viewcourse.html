@@ -4,8 +4,27 @@
 
 <h1>View individual course</h1>
 {%for item in data%}
+<a href='/courses'>Courses</a>
 <a href='/editcourse/{{item[0]}}'>Edit course</a>
-<h2>Course description</h2>
-<p>{{item[3]}}</p>
+<table>
+<tr>
+    <td>Course Name</td>
+    <td>Course description</td>
+    <td>Required?</td>
+    <td>Instruction type</td>
+    <td>Category</td>
+    <td>Subcategory</td>
+</tr>
+
+<tr>
+    <td>{{item[2]}}</td>
+    <td><textarea rows='20' cols="50">{{item[3]}}</textarea></td>
+    <td>{{item[6]}}</td>
+    <td>{{item[7]}}</td>
+    <td>{{item[8]}}</td>
+    <td>{{item[9]}}</td>
+</tr>
+
 {% endfor %}
+</table>
 {%endblock%}

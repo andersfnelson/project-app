@@ -1,6 +1,9 @@
 #content{
     background-color: lightblue;
-    width: 900px;
+    width: 1000px;
     margin: auto;
     text-align: center;
+}
+td{
+    padding: 0 15px;
 }

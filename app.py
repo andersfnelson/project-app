@@ -158,7 +158,7 @@ def addcourse():
 def viewcourse(id):
     sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
     result = engine.execute(sql).fetchall()
-    print(result)
+    # print(result)
     return render_template('viewcourse.html', data = result)
 
 
@@ -174,6 +174,32 @@ def delcourse(id):
 def editcourse(id):
     sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' % (id)
     result = engine.execute(sql).fetchall()
+    # print(result)
+    # Having a difficult time getting box to check on 'true' value in update form
     return render_template('editcourse.html', data=result)
+
+
+
+
+@app.route('/commitcourseupdate/<string:id>', methods=['GET', 'POST'])
+def commitcourseupdate(id):
+    if request.method == 'POST':
+        course_code = request.form['coursecode']
+        course_desc = request.form['coursedesc']
+        # program_name = request.form['programname']
+        required = 'required' in request.form
+        if required == True:
+            required = 1
+            print(required)
+        elif required == False:
+            required = 0
+            print(required)
+        instruction_type = request.form['instructiontype']
+        category = request.form['category']
+        subcategory = request.form['subcategory']
+        query = 'UPDATE advising.COURSE_TBL SET course_code = \'%s\', course_description = \'%s\', required = \'%s\', instruction_type = \'%s\', category = \'%s\', sub_category = \'%s\' WHERE course_id = \'%s\';' % (course_code,course_desc,required,instruction_type,category,subcategory, id)
+        # print(query)
+        engine.execute(query)
+        return redirect(url_for('courses'))    
 if __name__ == "__main__":
     app.run(debug=True)
