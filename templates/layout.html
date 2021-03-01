@@ -11,10 +11,12 @@
 </head>
 
 <body>
-    <div id='content'>{%block content%}
+    <div id='content'>
         <header>
+            <a href="{{url_for('hello')}}">Home</a>
             {%block header%}{%endblock%}
         </header>
+        {%block content%}
         {%endblock%}
     </div>
 </body>

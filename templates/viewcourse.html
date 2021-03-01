@@ -1,0 +1,11 @@
+{%extends "layout.html"%}
+{%block content%}
+
+
+<h1>View individual course</h1>
+{%for item in data%}
+<a href='/editcourse/{{item[0]}}'>Edit course</a>
+<h2>Course description</h2>
+<p>{{item[3]}}</p>
+{% endfor %}
+{%endblock%}

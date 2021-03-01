@@ -1,8 +1,28 @@
 {%extends "layout.html"%}
 {%block content%}
+<h1>Add a course</h1>
 <form method='POST'>
     <label for='coursecode'>Course code</label>
     <input type='text' name='coursecode'>
+    <br>
+    <label for='coursedesc'>Course description</label>
+    <input type='text' name='coursedesc'>
+    <br>
+    <label for='programname'>Program name</label>
+    <input type='text' name='programname'>
+    <br>
+    <label for='required'>Required?</label>
+    <input type='checkbox' name='required'>
+    <br>
+    <label for='instructiontype'>Instruction type</label>
+    <input type='text' name='instructiontype'>
+    <br>
+    <label for='category'>Category</label>
+    <input type='text' name='category'>
+    <br>
+    <label for='subcategory'>Subcategory</label>
+    <input type='text' name='subcategory'>
+    <br>
     <input type="submit" value="Add course">
 </form>
 {%endblock%}

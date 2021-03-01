@@ -133,11 +133,47 @@ def courses():
 def addcourse():
     if request.method == 'POST':
         course_code = request.form['coursecode']
-        query = 'INSERT INTO advising.COURSE_TBL (course_code) VALUES (\'%s\');' % (course_code)
+        course_desc = request.form['coursedesc']
+        program_name = request.form['programname']
+        required = 'required' in request.form
+        if required == True:
+            required = 1
+            print(required)
+        elif required == False:
+            required = 0
+            print(required)
+        instruction_type = request.form['instructiontype']
+        category = request.form['category']
+        subcategory = request.form['subcategory']
+        print(required)
+        #  Program id, term id, prerequisites not set up here yet because they are not elsewhere in the app
+        query = 'INSERT INTO advising.COURSE_TBL (course_code, course_description, required, instruction_type, category, sub_category) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (course_code, course_desc, required, instruction_type, category,subcategory)
         engine.execute(query)
         # print(fname)
         print(query)
         return redirect(url_for('courses'))
     return render_template('addcourse.html')    
+
+@app.route('/viewcourse/<string:id>')
+def viewcourse(id):
+    sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
+    result = engine.execute(sql).fetchall()
+    print(result)
+    return render_template('viewcourse.html', data = result)
+
+
+@app.route('/delcourse/<string:id>', methods = ['POST', 'GET'])
+def delcourse(id):
+    # print('deluser')
+    sql = 'DELETE FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
+    engine.execute(sql)
+    # print (sql)
+    return redirect(url_for('courses'))
+
+@app.route('/editcourse/<string:id>')
+def editcourse(id):
+    sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' % (id)
+    result = engine.execute(sql).fetchall()
+    return render_template('editcourse.html', data=result)
 if __name__ == "__main__":
     app.run(debug=True)
