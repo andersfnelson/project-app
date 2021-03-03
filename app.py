@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = 'secret key'
 
 
-
+# params = urllib.parse.quote_plus(config.params)
 params = urllib.parse.quote_plus("Driver={ODBC Driver 17 for SQL Server};Server=dunwoody-soe-dev.database.windows.net;PORT=1433;Database=soe-dev-db;Uid=dunwoody-dev;Pwd=engineering1!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;")
 
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
