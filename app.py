@@ -2,14 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for
 # from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import urllib
-# import config
+import config
 import re
 app = Flask(__name__)
 app.secret_key = 'secret key'
 
+# Trouble installing pyodbc on azure app service container.  Follow this: https://stackoverflow.com/questions/64640016/how-to-access-odbc-driver-on-azure-app-service
 
-# params = urllib.parse.quote_plus(config.params)
-params = urllib.parse.quote_plus("Driver={ODBC Driver 17 for SQL Server};Server=dunwoody-soe-dev.database.windows.net;PORT=1433;Database=soe-dev-db;Uid=dunwoody-dev;Pwd=engineering1!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;")
+
+params = urllib.parse.quote_plus(config.params)
 
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
