@@ -201,5 +201,50 @@ def commitcourseupdate(id):
         # print(query)
         engine.execute(query)
         return redirect(url_for('courses'))    
+
+
+
+@app.route('/programs')
+def programs():
+    sql = "SELECT * FROM advising.PROGRAM_TBL;"
+    result = engine.execute(sql).fetchall()
+    return render_template('programs.html', data=result)
+
+
+
+@app.route('/addprogram', methods=['GET', 'POST'])
+def addprogram():
+    if request.method == 'POST':
+        code = request.form['programcode']
+        name = request.form['programname']
+        desc = request.form['programdesc']
+        credits = request.form['credits']
+        sql = "INSERT INTO advising.PROGRAM_TBL (program_code, program_name, program_description, program_credits) VALUES (\'%s\', \'%s\', \'%s\', \'%s\')" % (code, name, desc, credits)
+        engine.execute(sql)
+        return redirect(url_for('programs'))
+    return render_template('addprogram.html')
+
+@app.route('/delprogram/<string:id>')
+def delprogram(id):
+    sql = "DELETE FROM advising.PROGRAM_TBL WHERE program_id = \'%s\'" % (id)
+    engine.execute(sql)
+    return redirect(url_for('programs'))
+
+@app.route('/editprogram/<string:id>', methods = ['GET', 'POST'])
+def editprogram(id):
+    sql = "SELECT * FROM advising.PROGRAM_TBL WHERE program_id = \'%s\'" % (id)
+    result = engine.execute(sql).fetchall()
+    return render_template('editprogram.html', data=result)
+
+@app.route('/commitprogramupdate/<string:id>', methods=['GET','POST'])
+def commitprogramupdate(id):
+    if request.method == 'POST':
+        code = request.form['programcode']
+        name = request.form['programname']
+        desc = request.form['programdesc']
+        credits = request.form['credits']
+        sql = "UPDATE advising.PROGRAM_TBL SET program_code = \'%s\', program_name = \'%s\', program_description = \'%s\', program_credits = \'%s\' WHERE program_id = \'%s\';" % (code, name, desc, credits, id)
+        engine.execute(sql)
+        return redirect(url_for('programs'))
 if __name__ == "__main__":
     app.run(debug=True)

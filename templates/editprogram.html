@@ -1,0 +1,23 @@
+{%extends "layout.html"%}
+{%block content%}
+<h1>Edit a Program</h1>
+{%for item in data%}
+<form method='POST' action="{{ url_for('commitprogramupdate', id=item[0])}}">
+
+    <label for='programcode'>Program code</label>
+    <input type='text' name='programcode' value='{{item[1]}}'>
+    <br>
+    <label for='programname'>Program name</label>
+    <input type='text' name='programname' value='{{item[2]}}'>
+    <br>
+    <label for='programdesc'>Program description</label>
+    <textarea name='programdesc' rows="5" cols="50">{{item[3]}}'</textarea>
+    <br>
+    <label for='credits'>Credits</label>
+    <input type='text' name='credits' value='{{item[4]}}'>
+    <br>
+    <input type="submit" value="Edit program">
+
+</form>
+{% endfor %}
+{%endblock%}

@@ -1,0 +1,20 @@
+{%extends "layout.html"%}
+{%block content%}
+<h1>Add a Program</h1>
+<form method='POST'>
+    <label for='programcode'>Program code</label>
+    <input type='text' name='programcode'>
+    <br>
+
+    <label for='programname'>Program name</label>
+    <input type='text' name='programname'>
+    <br>
+    <label for='programdesc'>Program description</label>
+    <textarea name='programdesc' rows="5" cols="50"></textarea>
+    <br>
+    <label for='credits'>Credits</label>
+    <input type='text' name='credits'>
+    <br>
+    <input type="submit" value="Add program">
+</form>
+{%endblock%}

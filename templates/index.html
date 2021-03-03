@@ -1,4 +1,4 @@
-<!doctype html>
+{% extends "layout.html" %}
 
 <html lang="en">
 <head>
@@ -11,12 +11,13 @@
 
 </head>
 
-<body>
+{%block content%}
 <h1>Advisor home</h1>
 <a href="{{ url_for('users')}}">Users</a>
 <br>
 <a href="{{ url_for('roles')}}">Roles</a>
 <br>
 <a href="{{ url_for('courses')}}">Courses</a>
-</body>
-</html>
+<br>
+<a href="{{ url_for('programs')}}">Programs</a>
+{%endblock%}

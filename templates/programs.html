@@ -1,0 +1,27 @@
+{%extends "layout.html"%}
+{%block content%}
+<h1>Programs</h1>
+<a href='/addprogram'>Add a program</a>
+<table>
+    <tr>
+        <td>Program code</td>
+        <td>Program name</td>
+        <td>Program description</td>
+        <td>Credits</td>
+    </tr>
+    {%for item in data%}
+    <tr>
+        <td>{{item[1]}}</td>
+        <td>{{item[2]}}</td>
+        <td>{{item[3]}}</td>
+        <td>{{item[4]}}</td>
+        <td><form action='/editprogram/{{item[0]}}'><input type='submit' value="Edit"></form></td>
+    <td><form action='/delprogram/{{item[0]}}'><input type='submit' value="Delete"></form></td>
+    </tr>
+
+    {%endfor%}
+
+</table>
+
+
+{%endblock%}
