@@ -2,16 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for
 # from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import urllib
-import config
+# import config
 import re
 app = Flask(__name__)
 app.secret_key = 'secret key'
 
 
 
-params = urllib.parse.quote_plus(config.params)
+# params = urllib.parse.quote_plus(config.params)
 
-engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+# engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 
 
