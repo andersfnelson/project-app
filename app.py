@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 # from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import urllib
-import config
+# import config
 import re
 import os
 app = Flask(__name__)
