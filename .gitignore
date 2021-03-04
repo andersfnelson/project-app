@@ -12,5 +12,4 @@ htmlcov/
 dist/
 build/
 *.egg-info/
-config.py
 sqltest2.py
