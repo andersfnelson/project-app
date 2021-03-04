@@ -11,9 +11,10 @@ app.secret_key = 'secret key'
 # Trouble installing pyodbc on azure app service container.  Follow this: https://stackoverflow.com/questions/64640016/how-to-access-odbc-driver-on-azure-app-service
 # Seems like pyodbc depends on unixodbc, which may not be installed on the container instance that Azure uses.
 
-# params = urllib.parse.quote_plus(config.params)
+
 # params = os.environ['DBCONNECTION']
 params = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=dunwoody-soe-dev.database.windows.net;PORT=1433;Database=soe-dev-db;Uid=dunwoody-dev;Pwd=engineering1!;Encrypt=no;TrustServerCertificate=no;Connection Timeout=30;"
+params = urllib.parse.quote_plus(params)
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 
