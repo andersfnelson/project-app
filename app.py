@@ -13,7 +13,7 @@ app.secret_key = 'secret key'
 
 # params = urllib.parse.quote_plus(config.params)
 # params = os.environ['DBCONNECTION']
-params = "Driver={ODBC Driver 17 for SQL Server};Server=dunwoody-soe-dev.database.windows.net;PORT=1433;Database=soe-dev-db;Uid=dunwoody-dev;Pwd=engineering1!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+params = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=dunwoody-soe-dev.database.windows.net;PORT=1433;Database=soe-dev-db;Uid=dunwoody-dev;Pwd=engineering1!;Encrypt=no;TrustServerCertificate=no;Connection Timeout=30;"
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 
