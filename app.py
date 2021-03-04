@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for
 # from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 import urllib
-# import config
+import config
 import re
 import os
+
 app = Flask(__name__)
 app.secret_key = 'secret key'
 
@@ -12,9 +13,8 @@ app.secret_key = 'secret key'
 # Seems like pyodbc depends on unixodbc, which may not be installed on the container instance that Azure uses.
 
 
-params = os.environ['DBCONNECTION']
-# params = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:dunwoody-soe-dev.database.windows.net;PORT=1433;Database=soe-dev-db;Uid=dunwoody-dev;Pwd=engineering1!;Encrypt=no;TrustServerCertificate=no;Connection Timeout=30;"
-params = urllib.parse.quote_plus(params)
+
+params = urllib.parse.quote_plus(config.params)
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 
