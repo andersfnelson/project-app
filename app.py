@@ -20,7 +20,7 @@ params = urllib.parse.quote_plus(params)
 
 #Locally, reading from .env file
 # params = urllib.parse.quote_plus(config.params)
-# engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 
 
