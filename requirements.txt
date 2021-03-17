@@ -2,3 +2,5 @@ flask
 pyodbc
 sqlalchemy
 python-dotenv
+flask-login
+flask-bcrypt

@@ -13,7 +13,7 @@
 <body>
     <div id='content'>
         <header>
-            <a href="{{url_for('hello')}}">Home</a>
+            <div id="globalhome"><a  href="{{url_for('hello')}}">Home</a></div>
             {%block header%}{%endblock%}
         </header>
         {%block content%}

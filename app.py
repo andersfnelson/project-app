@@ -5,10 +5,12 @@ import urllib
 import config
 import re
 import os
+from flask_login import login_user
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'secret key'
-
+bcrypt = Bcrypt(app)
 # Trouble installing pyodbc on azure app service container.  Follow this: https://stackoverflow.com/questions/64640016/how-to-access-odbc-driver-on-azure-app-service
 # Seems like pyodbc depends on unixodbc, which may not be installed on the container instance that Azure uses.
 
@@ -20,7 +22,14 @@ params = urllib.parse.quote_plus(config.params)
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 
-
+@app.route('/login', methods = ['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['useremail']
+        hashed_password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        # print(username)
+        # print(hashed_password)
+    return render_template('login.html')
 @app.route('/')
 def hello():
     return render_template('index.html')
