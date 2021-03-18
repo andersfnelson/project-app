@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html>
+{% extends 'layout.html' %}
+{% block content %}
 <h1>Add a new user</h1>
 <form method='POST'>
     <label for='fname'>First name</label>
@@ -23,4 +23,4 @@
 
 </form>
 <a href=/users><button>Go back to users page</button></a>
-</html>
+{% endblock %}

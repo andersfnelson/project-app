@@ -1,16 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for
 # from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import urllib
 import config
 import re
 import os
-from flask_login import login_user
+from flask_login import login_user, LoginManager, UserMixin
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.secret_key = 'secret key'
 bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
 # Trouble installing pyodbc on azure app service container.  Follow this: https://stackoverflow.com/questions/64640016/how-to-access-odbc-driver-on-azure-app-service
 # Seems like pyodbc depends on unixodbc, which may not be installed on the container instance that Azure uses.
 
@@ -21,15 +22,38 @@ bcrypt = Bcrypt(app)
 params = urllib.parse.quote_plus(config.params)
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
+class User(UserMixin):
+    def __init__(self, name, id, active=True):
+        self.name = name
+        self.id = id
+        self.active = active
+
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['useremail']
-        hashed_password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        # hashed_password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+        password = request.form['password']
         # print(username)
         # print(hashed_password)
+        user = engine.execute("SELECT * from advising.USER_TBL WHERE email = \'%s\'" % username)
+        db_password = engine.execute(text("SELECT user_password from advising.USER_TBL WHERE email = \'%s\';" % username)).first()
+        db_password = str(db_password[0])
+        if user and bcrypt.check_password_hash(db_password, password):
+            # login_user(user, remember=True)
+            print("Login successful!")
+            return redirect(url_for('hello'))
+        else:
+            print("Login unsuccessful")
     return render_template('login.html')
+
+
 @app.route('/')
 def hello():
     return render_template('index.html')
