@@ -7,3 +7,4 @@ The connection string for the database is not synced to this repository - contac
 python-dotenv - used for environment variables
 flask-login - for user session management
 flask-bcrypt - for hashing passwords
+Flask-Session - for managing session variables (used for login)

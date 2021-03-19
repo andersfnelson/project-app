@@ -14,3 +14,4 @@ build/
 *.egg-info/
 sqltest2.py
 .env
+flask_session/

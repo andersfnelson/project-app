@@ -14,6 +14,11 @@
     <div id='content'>
         <header>
             <div id="globalhome"><a href="{{url_for('hello')}}">Home</a></div>
+            
+            <a href="{{url_for('logout')}}">Logout</a>
+            
+            <a href="{{url_for('login')}}">Login</a>
+            
             {%block header%}{%endblock%}
         </header>
         {% with messages = get_flashed_messages(with_categories=true) %}

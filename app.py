@@ -1,17 +1,23 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_session import Session
 # from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
 import urllib
 import config
 import re
 import os
-from flask_login import login_user, LoginManager, UserMixin
+from flask_login import login_user, LoginManager, UserMixin, current_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
-app.secret_key = 'secret key'
+# Need to set secret key and session type for session variables to work
+app.secret_key = b'\xdc\xa6\x9d\xb2\xf8\xa7\xc3\xaa5\\\x9b\xc6'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
+# login_manager = LoginManager(app)
+# login_manager.login_view = 'login'
+
 # Trouble installing pyodbc on azure app service container.  Follow this: https://stackoverflow.com/questions/64640016/how-to-access-odbc-driver-on-azure-app-service
 # Seems like pyodbc depends on unixodbc, which may not be installed on the container instance that Azure uses.
 
@@ -22,24 +28,25 @@ login_manager = LoginManager(app)
 params = urllib.parse.quote_plus(config.params)
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
-class User(UserMixin):
-    def __init__(self, id, password, active=True):
-        self.id = id
-        self.password = password
-        self.active = active
-    def __repr__(self):
-        return f"User('{self.name})"
-    def get(self, id):
-        return self
-    def get_id():
-        return(id)
+# class User(UserMixin):
+#     def __init__(self, id, password, active=True):
+#         self.id = id
+#         self.password = password
+#         self.active = active
+#     def __repr__(self):
+#         return f"User('{self.id})"
+#     def get(id):
+#         return User
+#     def get_id(self):
+#         return id
 
 
 
-@login_manager.user_loader
-def load_user(id):
-    # id = id
-    return User.get(User, id)
+# @login_manager.user_loader
+# def load_user(id):
+#     id = id
+#     print("calling load_user function")
+#     return User.get(id)
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -49,35 +56,53 @@ def login():
         password = request.form['password']
         # print(username)
         # print(hashed_password)
-        user = engine.execute("SELECT * from advising.USER_TBL WHERE email = \'%s\'" % username)
+        user_result = engine.execute("SELECT * from advising.USER_TBL WHERE email = \'%s\'" % username)
         db_password = engine.execute(text("SELECT user_password from advising.USER_TBL WHERE email = \'%s\';" % username)).first()
         if db_password:
             db_password = str(db_password[0])
-        user_object = User(username, password)
-        if user and db_password and bcrypt.check_password_hash(db_password, password):
+        # user_object = User(username, password)
+        # print('user object')
+        # print(user_object)
+        if user_result:
+            session.pop('username', None)
+        if user_result and db_password and bcrypt.check_password_hash(db_password, password):
             # login_user(user_object, remember=True)
             # print("Login successful!")
             flash("Logged in successfully!")
-            return redirect(url_for('hello'))
+            session['username'] = request.form['useremail']
+            return redirect(url_for('hello', username=username))
         else:
             flash("Invalid username or password, please try again.")
             # print("Login unsuccessful")
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/')
 def hello():
-    return render_template('index.html')
+    if 'username' in session:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/roles')
 def roles():
-    result = engine.execute('SELECT * FROM advising.ROLE_TBL;').fetchall()
-    return render_template('roles.html', data=result)
+    if 'username' in session:
+        result = engine.execute('SELECT * FROM advising.ROLE_TBL;').fetchall()
+        return render_template('roles.html', data=result)
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/users')
 def users():
-    result = engine.execute('SELECT a.user_id, a.first_name, a.last_name, a.email, b.role_name FROM advising.USER_TBL a JOIN advising.ROLE_TBL b ON b.role_id = a.role_id;').fetchall()
-    return render_template('users.html', data=result)
+    if 'username' in session:
+        result = engine.execute('SELECT a.user_id, a.first_name, a.last_name, a.email, b.role_name FROM advising.USER_TBL a JOIN advising.ROLE_TBL b ON b.role_id = a.role_id;').fetchall()
+        return render_template('users.html', data=result)
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/adduser', methods = ['POST', 'GET'])
 def render():
