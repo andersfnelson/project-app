@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 # from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, text
 import urllib
@@ -23,16 +23,23 @@ params = urllib.parse.quote_plus(config.params)
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
 class User(UserMixin):
-    def __init__(self, name, id, active=True):
-        self.name = name
+    def __init__(self, id, password, active=True):
         self.id = id
+        self.password = password
         self.active = active
+    def __repr__(self):
+        return f"User('{self.name})"
+    def get(self, id):
+        return self
+    def get_id():
+        return(id)
 
 
 
 @login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
+def load_user(id):
+    # id = id
+    return User.get(User, id)
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -44,13 +51,17 @@ def login():
         # print(hashed_password)
         user = engine.execute("SELECT * from advising.USER_TBL WHERE email = \'%s\'" % username)
         db_password = engine.execute(text("SELECT user_password from advising.USER_TBL WHERE email = \'%s\';" % username)).first()
-        db_password = str(db_password[0])
-        if user and bcrypt.check_password_hash(db_password, password):
-            # login_user(user, remember=True)
-            print("Login successful!")
+        if db_password:
+            db_password = str(db_password[0])
+        user_object = User(username, password)
+        if user and db_password and bcrypt.check_password_hash(db_password, password):
+            # login_user(user_object, remember=True)
+            # print("Login successful!")
+            flash("Logged in successfully!")
             return redirect(url_for('hello'))
         else:
-            print("Login unsuccessful")
+            flash("Invalid username or password, please try again.")
+            # print("Login unsuccessful")
     return render_template('login.html')
 
 
@@ -87,6 +98,7 @@ def render():
         engine.execute(query)
         # print(fname)
         print(query)
+        flash(f'User added successfully!')
         return redirect(url_for('users'))
     return render_template('adduser.html', data=roleresult)
 
