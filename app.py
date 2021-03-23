@@ -15,8 +15,8 @@ app.secret_key = b'\xdc\xa6\x9d\xb2\xf8\xa7\xc3\xaa5\\\x9b\xc6'
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 bcrypt = Bcrypt(app)
-# login_manager = LoginManager(app)
-# login_manager.login_view = 'login'
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 # Trouble installing pyodbc on azure app service container.  Follow this: https://stackoverflow.com/questions/64640016/how-to-access-odbc-driver-on-azure-app-service
 # Seems like pyodbc depends on unixodbc, which may not be installed on the container instance that Azure uses.
@@ -28,25 +28,23 @@ bcrypt = Bcrypt(app)
 params = urllib.parse.quote_plus(config.params)
 engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
-# class User(UserMixin):
-#     def __init__(self, id, password, active=True):
-#         self.id = id
-#         self.password = password
-#         self.active = active
-#     def __repr__(self):
-#         return f"User('{self.id})"
-#     def get(id):
-#         return User
-#     def get_id(self):
-#         return id
+class User(UserMixin):
+    def __init__(self, id, password, active=True):
+        self.id = id
+        self.password = password
+        self.active = active
+    def __repr__(self):
+        return f"User('{self.id})"
+    # def get(id):
+    #     return self
+    def get_id(self):
+        return self.id
 
 
 
-# @login_manager.user_loader
-# def load_user(id):
-#     id = id
-#     print("calling load_user function")
-#     return User.get(id)
+@login_manager.user_loader
+def load_user(id):
+    return User(id, '')
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -60,16 +58,16 @@ def login():
         db_password = engine.execute(text("SELECT user_password from advising.USER_TBL WHERE email = \'%s\';" % username)).first()
         if db_password:
             db_password = str(db_password[0])
-        # user_object = User(username, password)
-        # print('user object')
-        # print(user_object)
-        if user_result:
-            session.pop('username', None)
+        user_object = User(username, password)
+        print('user object')
+        print(user_object)
+        # if user_result:
+        #     session.pop('username', None)
         if user_result and db_password and bcrypt.check_password_hash(db_password, password):
-            # login_user(user_object, remember=True)
+            login_user(user_object, remember=True)
             # print("Login successful!")
             flash("Logged in successfully!")
-            session['username'] = request.form['useremail']
+            # session['username'] = request.form['useremail']
             return redirect(url_for('hello', username=username))
         else:
             flash("Invalid username or password, please try again.")
@@ -78,33 +76,38 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear()
+    # session.clear()
+    logout_user()
     return redirect(url_for('login'))
 
 @app.route('/')
+@login_required
 def hello():
-    if 'username' in session:
-        return render_template('index.html')
-    else:
-        return redirect(url_for('login'))
+    # if 'username' in session:
+    return render_template('index.html')
+    # else:
+    return redirect(url_for('login'))
 
 @app.route('/roles')
+@login_required
 def roles():
-    if 'username' in session:
-        result = engine.execute('SELECT * FROM advising.ROLE_TBL;').fetchall()
-        return render_template('roles.html', data=result)
-    else:
-        return redirect(url_for('login'))
+    # if 'username' in session:
+    result = engine.execute('SELECT * FROM advising.ROLE_TBL;').fetchall()
+    return render_template('roles.html', data=result)
+    # else:
+    return redirect(url_for('login'))
 
 @app.route('/users')
+@login_required
 def users():
-    if 'username' in session:
-        result = engine.execute('SELECT a.user_id, a.first_name, a.last_name, a.email, b.role_name FROM advising.USER_TBL a JOIN advising.ROLE_TBL b ON b.role_id = a.role_id;').fetchall()
-        return render_template('users.html', data=result)
-    else:
-        return redirect(url_for('login'))
+    # if 'username' in session:
+    result = engine.execute('SELECT a.user_id, a.first_name, a.last_name, a.email, b.role_name FROM advising.USER_TBL a JOIN advising.ROLE_TBL b ON b.role_id = a.role_id;').fetchall()
+    return render_template('users.html', data=result)
+    # else:
+    return redirect(url_for('login'))
 
 @app.route('/adduser', methods = ['POST', 'GET'])
+@login_required
 def render():
     rolequery = 'SELECT * FROM advising.ROLE_TBL'
     roleresult = engine.execute(rolequery).fetchall()
@@ -128,6 +131,7 @@ def render():
     return render_template('adduser.html', data=roleresult)
 
 @app.route('/addrole', methods = ['POST', 'GET'])
+@login_required
 def addrole():
     if request.method == 'POST':
         rname = request.form['rname']
@@ -139,6 +143,7 @@ def addrole():
     return render_template('addrole.html')
 
 @app.route('/deluser/<string:id>', methods = ['POST', 'GET'])
+@login_required
 def deluser(id):
     # print('deluser')
     sql = 'DELETE FROM advising.USER_TBL WHERE user_id = \'%s\';' %(id)
@@ -147,6 +152,7 @@ def deluser(id):
     return redirect(url_for('users'))
 
 @app.route('/edituser/<string:id>', methods = ['POST', 'GET'])
+@login_required
 def edituser(id):
     sql = 'SELECT a.user_id, a.first_name, a.last_name, a.email, b.role_name FROM advising.USER_TBL a JOIN advising.ROLE_TBL b on a.role_id = b.role_id WHERE user_id = \'%s\';' %(id)
     result = engine.execute(sql).fetchall()
@@ -155,6 +161,7 @@ def edituser(id):
     return render_template('edituser.html', data=result, data2=result2)
 
 @app.route('/delrole/<string:id>', methods = ['POST', 'GET'])
+@login_required
 def delrole(id):
     # print('deluser')
     sql = 'DELETE FROM advising.ROLE_TBL WHERE role_id = \'%s\';' %(id)
@@ -163,6 +170,7 @@ def delrole(id):
     return redirect(url_for('roles'))
 
 @app.route('/editrole/<string:id>', methods = ['POST', 'GET'])
+@login_required
 def editrole(id):
     sql = 'SELECT * FROM advising.ROLE_TBL WHERE role_id = \'%s\';' %(id)
     result = engine.execute(sql).fetchall()
@@ -170,6 +178,7 @@ def editrole(id):
     return render_template('editrole.html', data=result)
 
 @app.route('/commitupdate/<string:id>', methods=['GET', 'POST'])
+@login_required
 def commitupdate(id):
     if request.method == 'POST':
         fname = request.form['fname']
@@ -189,6 +198,7 @@ def commitupdate(id):
 
 
 @app.route('/commitroleupdate/<string:id>', methods=['GET', 'POST'])
+@login_required
 def commitroleupdate(id):
     if request.method == 'POST':
         rname = request.form['rname']
@@ -199,6 +209,7 @@ def commitroleupdate(id):
 
 
 @app.route('/courses')
+@login_required
 def courses():
     sql = 'SELECT * from advising.COURSE_TBL'
     result = engine.execute(sql).fetchall()
@@ -206,6 +217,7 @@ def courses():
 
 
 @app.route('/addcourse', methods = ['POST', 'GET'])
+@login_required
 def addcourse():
     if request.method == 'POST':
         course_code = request.form['coursecode']
@@ -231,6 +243,7 @@ def addcourse():
     return render_template('addcourse.html')    
 
 @app.route('/viewcourse/<string:id>')
+@login_required
 def viewcourse(id):
     sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
     result = engine.execute(sql).fetchall()
@@ -239,6 +252,7 @@ def viewcourse(id):
 
 
 @app.route('/delcourse/<string:id>', methods = ['POST', 'GET'])
+@login_required
 def delcourse(id):
     # print('deluser')
     sql = 'DELETE FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
@@ -247,6 +261,7 @@ def delcourse(id):
     return redirect(url_for('courses'))
 
 @app.route('/editcourse/<string:id>')
+@login_required
 def editcourse(id):
     sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' % (id)
     result = engine.execute(sql).fetchall()
@@ -258,6 +273,7 @@ def editcourse(id):
 
 
 @app.route('/commitcourseupdate/<string:id>', methods=['GET', 'POST'])
+@login_required
 def commitcourseupdate(id):
     if request.method == 'POST':
         course_code = request.form['coursecode']
@@ -281,6 +297,7 @@ def commitcourseupdate(id):
 
 
 @app.route('/programs')
+@login_required
 def programs():
     sql = "SELECT * FROM advising.PROGRAM_TBL;"
     result = engine.execute(sql).fetchall()
@@ -289,6 +306,7 @@ def programs():
 
 
 @app.route('/addprogram', methods=['GET', 'POST'])
+@login_required
 def addprogram():
     if request.method == 'POST':
         code = request.form['programcode']
@@ -301,18 +319,21 @@ def addprogram():
     return render_template('addprogram.html')
 
 @app.route('/delprogram/<string:id>')
+@login_required
 def delprogram(id):
     sql = "DELETE FROM advising.PROGRAM_TBL WHERE program_id = \'%s\'" % (id)
     engine.execute(sql)
     return redirect(url_for('programs'))
 
 @app.route('/editprogram/<string:id>', methods = ['GET', 'POST'])
+@login_required
 def editprogram(id):
     sql = "SELECT * FROM advising.PROGRAM_TBL WHERE program_id = \'%s\'" % (id)
     result = engine.execute(sql).fetchall()
     return render_template('editprogram.html', data=result)
 
 @app.route('/commitprogramupdate/<string:id>', methods=['GET','POST'])
+@login_required
 def commitprogramupdate(id):
     if request.method == 'POST':
         code = request.form['programcode']
