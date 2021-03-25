@@ -59,12 +59,12 @@ def login():
         if db_password:
             db_password = str(db_password[0])
         user_object = User(username, password)
-        print('user object')
-        print(user_object)
+        # print('user object')
+        # print(user_object)
         # if user_result:
         #     session.pop('username', None)
         if user_result and db_password and bcrypt.check_password_hash(db_password, password):
-            login_user(user_object, remember=True)
+            login_user(user_object, remember=False)
             # print("Login successful!")
             flash("Logged in successfully!")
             # session['username'] = request.form['useremail']
@@ -87,6 +87,12 @@ def hello():
     return render_template('index.html')
     # else:
     return redirect(url_for('login'))
+
+@app.route('/students')
+def students():
+    query = 'SELECT a.user_id, a.first_name, a.last_name, b.role_name from advising.USER_TBL a JOIN advising.ROLE_TBL b ON a.role_id = b.role_id WHERE b.role_name = \'Student\';'
+    result = engine.execute(query).fetchall()
+    return render_template('students.html', data=result)
 
 @app.route('/roles')
 @login_required
@@ -111,24 +117,37 @@ def users():
 def render():
     rolequery = 'SELECT * FROM advising.ROLE_TBL'
     roleresult = engine.execute(rolequery).fetchall()
+    programquery = 'SELECT program_name FROM advising.PROGRAM_TBL;'
+    program_result = engine.execute(programquery).fetchall()
     if request.method == 'POST':
         fname = request.form['fname']
         lname = request.form['lname']
         email = request.form['email']
         role_name = request.form['roletype']
+        program_name = request.form['program']
+        print(program_name)
         # print('roletype: '+role_name)
         role_id_result= engine.execute('SELECT role_id FROM advising.ROLE_TBL WHERE role_name = \'%s\'' % (role_name))
         id = str([row[0] for row in role_id_result])
         id = re.sub(r'^\W*', '', id)
         id = re.sub(r'\W*$', '', id)
-        print(id)
+        # print(id)
         query = 'INSERT INTO advising.USER_TBL (first_name, last_name, email, role_id) VALUES (\'%s\', \'%s\', \'%s\', \'%s\');' % (fname, lname, email, id)
         engine.execute(query)
+        get_program_id_query = 'SELECT program_id FROM advising.PROGRAM_TBL WHERE program_name = \'%s\';' % (program_name)
+        program_id_result = engine.execute(get_program_id_query).fetchall()
+        program_id = program_id_result [0][0]
+        print(program_id)
+        get_new_user_id_query = 'SELECT user_id FROM advising.USER_TBL WHERE first_name = \'%s\' AND last_name = \'%s\';' % (fname, lname)
+        user_id_result = engine.execute(get_new_user_id_query).fetchall()
+        user_id = user_id_result [0][0]
+        link_tbl_query = 'INSERT INTO advising.USER_PROGRAM_LNK (user_id, program_id) VALUES (\'%s\', \'%s\');' % (user_id, program_id)
+        engine.execute(link_tbl_query)
         # print(fname)
-        print(query)
+        # print(query)
         flash(f'User added successfully!')
         return redirect(url_for('users'))
-    return render_template('adduser.html', data=roleresult)
+    return render_template('adduser.html', data=roleresult, programs=program_result)
 
 @app.route('/addrole', methods = ['POST', 'GET'])
 @login_required

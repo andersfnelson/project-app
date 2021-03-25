@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h1>Students</h1>
+<table>
+    <tr>
+        <td>First name</td>
+        <td>Last name</td>
+    </tr>
+    {% for item in data %}
+    <td>{{item[1]}}</td>
+    <td>{{item[2]}}</td>
+    <td><button><a href='/viewstudent/{{item[0]}}'>View</a></button></td>
+    {% endfor %}
+</table>
+{% endblock %}
