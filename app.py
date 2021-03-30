@@ -98,7 +98,7 @@ def students():
 @login_required
 def roles():
     # if 'username' in session:
-    result = engine.execute('SELECT * FROM advising.ROLE_TBL;').fetchall()
+    result = engine.execute('SELECT * FROM advising.ROLE_TBL WHERE date_deleted IS NULL;').fetchall()
     return render_template('roles.html', data=result)
     # else:
     return redirect(url_for('login'))
@@ -107,7 +107,7 @@ def roles():
 @login_required
 def users():
     # if 'username' in session:
-    result = engine.execute('SELECT a.user_id, a.first_name, a.last_name, a.email, b.role_name FROM advising.USER_TBL a JOIN advising.ROLE_TBL b ON b.role_id = a.role_id;').fetchall()
+    result = engine.execute('SELECT a.user_id, a.first_name, a.last_name, a.email, b.role_name FROM advising.USER_TBL a FULL JOIN advising.ROLE_TBL b ON b.role_id = a.role_id WHERE a.date_deleted IS NULL;').fetchall()
     return render_template('users.html', data=result)
     # else:
     return redirect(url_for('login'))
@@ -125,26 +125,22 @@ def render():
         email = request.form['email']
         role_name = request.form['roletype']
         program_name = request.form['program']
-        print(program_name)
         # print('roletype: '+role_name)
         role_id_result= engine.execute('SELECT role_id FROM advising.ROLE_TBL WHERE role_name = \'%s\'' % (role_name))
         id = str([row[0] for row in role_id_result])
         id = re.sub(r'^\W*', '', id)
         id = re.sub(r'\W*$', '', id)
-        # print(id)
         query = 'INSERT INTO advising.USER_TBL (first_name, last_name, email, role_id) VALUES (\'%s\', \'%s\', \'%s\', \'%s\');' % (fname, lname, email, id)
         engine.execute(query)
         get_program_id_query = 'SELECT program_id FROM advising.PROGRAM_TBL WHERE program_name = \'%s\';' % (program_name)
         program_id_result = engine.execute(get_program_id_query).fetchall()
         program_id = program_id_result [0][0]
-        print(program_id)
+        #Get the newly created user's id, so that the id and the program id can be added to the link table
         get_new_user_id_query = 'SELECT user_id FROM advising.USER_TBL WHERE first_name = \'%s\' AND last_name = \'%s\';' % (fname, lname)
         user_id_result = engine.execute(get_new_user_id_query).fetchall()
         user_id = user_id_result [0][0]
         link_tbl_query = 'INSERT INTO advising.USER_PROGRAM_LNK (user_id, program_id) VALUES (\'%s\', \'%s\');' % (user_id, program_id)
         engine.execute(link_tbl_query)
-        # print(fname)
-        # print(query)
         flash(f'User added successfully!')
         return redirect(url_for('users'))
     return render_template('adduser.html', data=roleresult, programs=program_result)
@@ -165,7 +161,7 @@ def addrole():
 @login_required
 def deluser(id):
     # print('deluser')
-    sql = 'DELETE FROM advising.USER_TBL WHERE user_id = \'%s\';' %(id)
+    sql = 'UPDATE advising.USER_TBL SET date_deleted = CURRENT_TIMESTAMP WHERE user_id = \'%s\';' %(id)
     engine.execute(sql)
     # print (sql)
     return redirect(url_for('users'))
@@ -183,7 +179,7 @@ def edituser(id):
 @login_required
 def delrole(id):
     # print('deluser')
-    sql = 'DELETE FROM advising.ROLE_TBL WHERE role_id = \'%s\';' %(id)
+    sql = 'UPDATE advising.ROLE_TBL SET date_deleted = CURRENT_TIMESTAMP WHERE role_id = \'%s\';' %(id)
     engine.execute(sql)
     # print (sql)
     return redirect(url_for('roles'))
@@ -230,7 +226,7 @@ def commitroleupdate(id):
 @app.route('/courses')
 @login_required
 def courses():
-    sql = 'SELECT * from advising.COURSE_TBL'
+    sql = 'SELECT * from advising.COURSE_TBL WHERE date_deleted IS NULL;'
     result = engine.execute(sql).fetchall()
     return render_template('courses.html', data = result)
 
@@ -264,7 +260,7 @@ def addcourse():
 @app.route('/viewcourse/<string:id>')
 @login_required
 def viewcourse(id):
-    sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
+    sql = 'SELECT course_id, course_code, course_description, required, instruction_type, category, sub_category FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
     result = engine.execute(sql).fetchall()
     # print(result)
     return render_template('viewcourse.html', data = result)
@@ -274,7 +270,7 @@ def viewcourse(id):
 @login_required
 def delcourse(id):
     # print('deluser')
-    sql = 'DELETE FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
+    sql = 'UPDATE advising.COURSE_TBL SET date_deleted = CURRENT_TIMESTAMP WHERE course_id = \'%s\';' %(id)
     engine.execute(sql)
     # print (sql)
     return redirect(url_for('courses'))
@@ -282,7 +278,7 @@ def delcourse(id):
 @app.route('/editcourse/<string:id>')
 @login_required
 def editcourse(id):
-    sql = 'SELECT * FROM advising.COURSE_TBL WHERE course_id = \'%s\';' % (id)
+    sql = 'SELECT course_id, course_code, course_description, required, instruction_type, category, sub_category FROM advising.COURSE_TBL WHERE course_id = \'%s\';' %(id)
     result = engine.execute(sql).fetchall()
     # print(result)
     # Having a difficult time getting box to check on 'true' value in update form

@@ -6,22 +6,22 @@
 {%for item in data%}
 <form method='POST' action="{{ url_for('commitcourseupdate', id = item[0])}}">
     <label for='coursecode'>Course Code</label>
-    <input type='text' name='coursecode' value="{{item[2]}}">
+    <input type='text' name='coursecode' value="{{item[1]}}">
     <br>
     <label for='coursedesc'>Course Description</label>
-    <textarea name='coursedesc'>{{item[3]}}</textarea>
+    <textarea name='coursedesc'>{{item[2]}}</textarea>
     <br>
     <label for='required'>Required</label>
     <input type='checkbox' name='required'>
     <br>
     <label for='instructiontype'>Instruction type</label>
-    <input type='text' name='instructiontype' value="{{item[7]}}">
+    <input type='text' name='instructiontype' value="{{item[4]}}">
     <br>
     <label for='category'>Category</label>
-    <input type='text' name='category' value="{{item[8]}}">
+    <input type='text' name='category' value="{{item[5]}}">
     <br>
     <label for='subcategory'>Subcategory</label>
-    <input type='text' name='subcategory' value="{{item[9]}}">
+    <input type='text' name='subcategory' value="{{item[6]}}">
     <br>
     <input type="submit" value="Update Course info">
 
