@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h1>Classes</h1>
+<a href='/addclass'>Add a class</a>
+<table>
+    <tr>
+        <td>Class name</td>
+    </tr>
+    {% for item in data %}
+    <td>{{item[1]}}</td>
+    <td><form action='/viewclass/{{item[0]}}'><input type='submit' value="View"></form></td>
+    <td><form action='/delclass/{{item[0]}}'><input type='submit' value="Delete"></form></td>
+    {% endfor %}
+</table>
+{% endblock %}

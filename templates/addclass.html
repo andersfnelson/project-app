@@ -1,0 +1,30 @@
+{%extends "layout.html"%}
+{%block content%}
+<h1>Add a class</h1>
+<form method='POST'>
+    <label for='courseselect'>Select course</label>
+    <select name="courseselect" id="courseselect">
+        <option value="" disabled selected>Select course</option>
+        {% for course in courses %}
+        <option>{{course[0]}}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <label for='termselect'>Select term</label>
+    <select name="termselect" id="termselect">
+        <option value="" disabled selected>Select term</option>
+        {% for term in terms %}
+        <option>{{term[0]}}</option>
+        {% endfor %}
+    </select>
+    <br>
+
+    <label for='startdate'>Start date</label>
+    <input type='date' name='startdate'>
+    <br>
+    <label for='enddate'>End date</label>
+    <input type='date' name='enddate'>
+    <br>
+    <input type="submit" value="Add class">
+</form>
+{%endblock%}

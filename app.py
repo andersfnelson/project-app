@@ -358,6 +358,38 @@ def commitprogramupdate(id):
         sql = "UPDATE advising.PROGRAM_TBL SET program_code = \'%s\', program_name = \'%s\', program_description = \'%s\', program_credits = \'%s\' WHERE program_id = \'%s\';" % (code, name, desc, credits, id)
         engine.execute(sql)
         return redirect(url_for('programs'))
+
+
+@app.route('/classes')
+@login_required
+def classes():
+    sql = "SELECT * FROM advising.CLASS_TBL;"
+    result = engine.execute(sql).fetchall()
+    return render_template('classes.html', data=result)
+
+@app.route('/addclass', methods = ['GET', 'POST'])
+@login_required
+def addclass():
+    courses_query = "SELECT course_code FROM advising.COURSE_TBL;"
+    course_result = engine.execute(courses_query).fetchall()
+    term_query = "SELECT season FROM advising.TERM_TBL;"
+    term_result = engine.execute(term_query).fetchall()
+    if request.method == 'POST':
+        course = request.form['courseselect']
+        term = request.form['termselect']
+        start_date = request.form['startdate']
+        end_date = request.form['enddate']
+        find_course_id_query = "SELECT course_id FROM advising.COURSE_TBL WHERE course_code = \'%s\' AND date_deleted IS NULL;" % (course)
+        course_id_result = engine.execute(find_course_id_query).fetchall()[0][0]
+        find_term_id_query = "SELECT term_id FROM advising.TERM_TBL WHERE season = \'%s\' AND date_deleted IS NULL;"
+        term_id_result = engine.execute(find_course_id_query).fetchall()[0][0]
+        # print(course_id_result)
+        sql = "INSERT INTO advising.CLASS_TBL (course_id, term_id, start_date, end_date) VALUES (\'%s\', \'%s\', \'%s\', \'%s\');" % (course_id_result, term_id_result, start_date, end_date)
+        engine.execute(sql)
+        print(start_date)
+        return redirect(url_for('classes'))
+    return render_template('addclass.html', courses=course_result, terms=term_result)
+
 if __name__ == "__main__":
     app.run(debug=True)
 
