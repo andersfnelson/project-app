@@ -234,6 +234,8 @@ def courses():
 @app.route('/addcourse', methods = ['POST', 'GET'])
 @login_required
 def addcourse():
+    # add term query
+    term_query = ""
     if request.method == 'POST':
         course_code = request.form['coursecode']
         course_desc = request.form['coursedesc']
@@ -384,12 +386,19 @@ def addclass():
         find_term_id_query = "SELECT term_id FROM advising.TERM_TBL WHERE season = \'%s\' AND date_deleted IS NULL;"
         term_id_result = engine.execute(find_course_id_query).fetchall()[0][0]
         # print(course_id_result)
+        # this needs to be specific term id, not general term
+        # also need to add general term to course?
         sql = "INSERT INTO advising.CLASS_TBL (course_id, term_id, start_date, end_date) VALUES (\'%s\', \'%s\', \'%s\', \'%s\');" % (course_id_result, term_id_result, start_date, end_date)
         engine.execute(sql)
         print(start_date)
         return redirect(url_for('classes'))
     return render_template('addclass.html', courses=course_result, terms=term_result)
 
+@app.route('/terms')
+@login_required
+def terms():
+    return render_template('terms.html')
+    
 if __name__ == "__main__":
     app.run(debug=True)
 
